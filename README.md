@@ -17,13 +17,29 @@ ETHERPAD_APP_NAME=etherpad
 oc new-project ${ETHERPAD_PROJECT} --display-name "Etherpad"
 
 # Creating persistent database
-oc new-app mysql-persistent --param MYSQL_USER=ether --param MYSQL_PASSWORD=ether --param MYSQL_DATABASE=ether --param VOLUME_CAPACITY=2Gi --param MYSQL_VERSION=5.7 -n ${ETHERPAD_PROJECT}
+oc new-app \
+    mysql-persistent \
+    --param MYSQL_USER=ether \
+    --param MYSQL_PASSWORD=ether \
+    --param MYSQL_DATABASE=ether \
+    --param VOLUME_CAPACITY=2Gi \
+    --param MYSQL_VERSION=5.7 \
+    -n ${ETHERPAD_PROJECT}
 
 # Wait for the database to be ready
 sleep 45
 
 # Creating etherpad
-oc new-app docker.io/etherpad/etherpad:${ETHERPAD_VERSION} DB_TYPE=mysql DB_HOST=mysql DB_PORT=3306 DB_USER=ether DB_PASS=ether DB_NAME=ether ADMIN_PASSWORD=supersecret -n etherpad
+oc new-app \
+    docker.io/etherpad/etherpad:${ETHERPAD_VERSION} \
+    DB_TYPE=mysql \
+    DB_HOST=mysql \
+    DB_PORT=3306 \
+    DB_USER=ether \
+    DB_PASS=ether \
+    DB_NAME=ether \
+    ADMIN_PASSWORD=supersecret \
+    -n etherpad
 
 # Creating route for etherpad
 oc expose svc etherpad -n ${ETHERPAD_PROJECT}
