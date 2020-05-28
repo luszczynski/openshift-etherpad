@@ -6,7 +6,7 @@ This is a simple repo describing how you can deploy etherpad-lite for your works
 
 ## Instructions
 
-### Using OC and Bash
+### Using oc and Bash
 
 ```bash
 ETHERPAD_PROJECT=etherpad
@@ -57,3 +57,15 @@ You should see the following screen
 ![](imgs/2020-05-27-12-41-04.png)
 
 ### Using Ansible
+
+### Creating list of Users
+
+Use the following script to generate a list of users.
+
+```bash
+NUMBER_OF_USERS=20
+
+for userNumber in $(seq 1 $NUMBER_OF_USERS);do
+  echo "user${userNumber}="
+done
+```
