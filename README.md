@@ -2,7 +2,7 @@
 
 This is a simple repo describing how you can deploy etherpad-lite for your workshops.
 
-![](imgs/2020-05-27-12-31-45.png)
+![](imgs/2020-05-29-09-14-49.png)
 
 ## Instructions
 
@@ -47,6 +47,7 @@ oc expose svc etherpad -n ${ETHERPAD_PROJECT}
 # Grouping mysql and etherpad on the same application
 oc label dc etherpad app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 oc label dc mysql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
+oc annotate dc etherpad app.openshift.io/connects-to=mysql-persistent -n ${ETHERPAD_PROJECT}
 
 # On MacOs
 open http://$(oc get route etherpad -o jsonpath='{.spec.host}')
