@@ -64,9 +64,35 @@ You should see the following screen
 Use the following script to generate a list of users.
 
 ```bash
+# Change this according to the number of users
 NUMBER_OF_USERS=20
 
 for userNumber in $(seq 1 $NUMBER_OF_USERS);do
   echo "user${userNumber}="
 done
+```
+
+You should see the following output. Use it in your etherpad.
+
+```
+user1=
+user2=
+user3=
+user4=
+user5=
+user6=
+user7=
+user8=
+user9=
+user10=
+user11=
+user12=
+user13=
+user14=
+user15=
+user16=
+user17=
+user18=
+user19=
+user20=
 ```
