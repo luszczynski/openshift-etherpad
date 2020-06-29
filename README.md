@@ -57,8 +57,6 @@ You should see the following screen
 
 ![](imgs/2020-05-27-12-41-04.png)
 
-### Using Ansible
-
 ### Creating list of Users
 
 Use the following script to generate a list of users.
@@ -74,7 +72,7 @@ done
 
 You should see the following output. Use it in your etherpad.
 
-```
+```bash
 user1=
 user2=
 user3=
