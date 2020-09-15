@@ -31,6 +31,7 @@ sleep 45
 
 # Creating etherpad
 oc new-app \
+    --name=${ETHERPAD_APP_NAME} \
     docker.io/etherpad/etherpad:${ETHERPAD_VERSION} \
     DB_TYPE=mysql \
     DB_HOST=mysql \
@@ -39,7 +40,7 @@ oc new-app \
     DB_PASS=ether \
     DB_NAME=ether \
     ADMIN_PASSWORD=supersecret \
-    -n etherpad
+    -n ${ETHERPAD_PROJECT}
 
 # Creating route for etherpad
 oc expose svc etherpad -n ${ETHERPAD_PROJECT}
@@ -49,11 +50,17 @@ oc label dc etherpad app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPA
 oc label dc mysql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 oc annotate dc etherpad app.openshift.io/connects-to=mysql-persistent -n ${ETHERPAD_PROJECT}
 
+# On Openshift 4.5 or when using Kubernetes vanilla, you may need to adjust the commands above to use deployment instead of deploymentconfig. Below are the examples:
+
+oc label deploy etherpad app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
+oc label deploy mysql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
+oc annotate deploy etherpad app.openshift.io/connects-to=mysql-persistent -n ${ETHERPAD_PROJECT}
+
 # On MacOs
 open http://$(oc get route etherpad -o jsonpath='{.spec.host}')
 ```
 
-You should see the following screen
+You should see now the following screen
 
 ![](imgs/2020-05-27-12-41-04.png)
 
