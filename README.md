@@ -2,58 +2,62 @@
 
 This is a simple repo describing how you can deploy etherpad-lite for your workshops.
 
-![](imgs/2020-05-29-09-14-49.png)
+![](imgs/2021-08-10-10-46-42.png)
 
 ## Instructions
 
-### Using oc and Bash
+### Installation
+
+Tested on OpenShift 4.7
 
 ```bash
 ETHERPAD_PROJECT=etherpad
-ETHERPAD_VERSION=1.8.4
+ETHERPAD_VERSION=1.8.14
 ETHERPAD_APP_NAME=etherpad
 
 # Creating project
 oc new-project ${ETHERPAD_PROJECT} --display-name "Etherpad"
 
-# Creating persistent database
 oc new-app \
-    mysql-persistent \
-    --param MYSQL_USER=ether \
-    --param MYSQL_PASSWORD=ether \
-    --param MYSQL_DATABASE=ether \
+    postgresql-persistent \
+    --param DATABASE_SERVICE_NAME=postgresql \
+    --param POSTGRESQL_USER=ether \
+    --param POSTGRESQL_PASSWORD=ether \
+    --param POSTGRESQL_DATABASE=ether \
+    --param POSTGRESQL_VERSION=10 \
     --param VOLUME_CAPACITY=2Gi \
-    --param MYSQL_VERSION=5.7 \
+    --labels=app=database \
     -n ${ETHERPAD_PROJECT}
 
 # Wait for the database to be ready
 sleep 45
 
-# Creating etherpad
+# Creating etherpad for Postgresql
 oc new-app \
     --name=${ETHERPAD_APP_NAME} \
     docker.io/etherpad/etherpad:${ETHERPAD_VERSION} \
-    DB_TYPE=mysql \
-    DB_HOST=mysql \
-    DB_PORT=3306 \
+    DB_TYPE=postgres \
+    DB_HOST=postgresql \
+    DB_PORT=5432 \
     DB_USER=ether \
     DB_PASS=ether \
     DB_NAME=ether \
     ADMIN_PASSWORD=supersecret \
+    --labels=app=etherpad \
     -n ${ETHERPAD_PROJECT}
 
 # Creating route for etherpad
 oc expose svc ${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 
-# Grouping mysql and etherpad on the same application
+# Grouping postgresql and etherpad on the same application
 oc label dc ${ETHERPAD_APP_NAME} app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc label dc mysql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc annotate dc ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=mysql-persistent -n ${ETHERPAD_PROJECT}
+oc label dc postgresql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
+oc annotate dc ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=postgresql-persistent -n ${ETHERPAD_PROJECT}
 
 # On Openshift 4.5 or when using Kubernetes vanilla, you may need to adjust the commands above to use deployment instead of deploymentconfig. Below are the examples:
 oc label deploy ${ETHERPAD_APP_NAME} app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc label deploy mysql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc annotate deploy ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=mysql-persistent -n ${ETHERPAD_PROJECT}
+oc label dc postgresql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
+oc annotate deploy ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=postgresql-persistent -n ${ETHERPAD_PROJECT}
 
 # On MacOs
 open http://$(oc get route ${ETHERPAD_APP_NAME} -o jsonpath='{.spec.host}')
@@ -65,7 +69,7 @@ You should see now the following screen
 
 To open Etherpad, click on the arrow for the Etherpad pod:
 
-![](imgs/2020-09-15-10-19-14.png)
+![](imgs/2021-08-10-10-48-46.png)
 
 ### Creating list of Users
 
