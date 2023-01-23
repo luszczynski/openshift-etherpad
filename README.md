@@ -8,18 +8,18 @@ This is a simple repo describing how you can deploy etherpad-lite for your works
 
 ### Installation
 
-Tested on OpenShift 4.7
+Tested on OpenShift 4.12 (make sure you `oc` command line is on 4.12 version. You can check that by running `oc version`)
 
 ```bash
 ETHERPAD_PROJECT=etherpad
-ETHERPAD_VERSION=1.8.14
+ETHERPAD_VERSION=1.8.18
 ETHERPAD_APP_NAME=etherpad
 
 # Creating project
 oc new-project ${ETHERPAD_PROJECT} --display-name "Etherpad"
 
 oc new-app \
-    postgresql-persistent \
+    --template=postgresql-persistent \
     --param DATABASE_SERVICE_NAME=postgresql \
     --param POSTGRESQL_USER=ether \
     --param POSTGRESQL_PASSWORD=ether \
@@ -49,12 +49,7 @@ oc new-app \
 # Creating route for etherpad
 oc expose svc ${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 
-# Grouping postgresql and etherpad on the same application
-oc label dc ${ETHERPAD_APP_NAME} app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc label dc postgresql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
-oc annotate dc ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=postgresql-persistent -n ${ETHERPAD_PROJECT}
-
-# On Openshift 4.5 or when using Kubernetes vanilla, you may need to adjust the commands above to use deployment instead of deploymentconfig. Below are the examples:
+# Grouping postgresql and etherpad in the same application
 oc label deploy ${ETHERPAD_APP_NAME} app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 oc label dc postgresql app.kubernetes.io/part-of=${ETHERPAD_APP_NAME} -n ${ETHERPAD_PROJECT}
 oc annotate deploy ${ETHERPAD_APP_NAME} app.openshift.io/connects-to=postgresql-persistent -n ${ETHERPAD_PROJECT}
